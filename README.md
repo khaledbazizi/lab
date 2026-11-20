@@ -1,2 +1,9 @@
-# lab
-Automated Linux server lab monitored with Ansible and shell scripts.
+## Initial setup 
+
+Using two servers: debian and alpine
+
+TODO 
+
+[] users role
+[] ssh hardening
+[] firewall

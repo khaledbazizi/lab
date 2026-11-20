@@ -1,0 +1,5 @@
+---
+- name: Configure lab base
+  hosts: lab
+  roles:
+    - base

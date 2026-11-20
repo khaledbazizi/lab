@@ -1,0 +1,33 @@
+- name: Update apt cache and upgrade (Debian)
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: safe
+    cache_valid_time: 3600
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Update apk index and upgrade (Alpine)
+  community.general.apk:
+    update_cache: true
+    upgrade: true
+  when: ansible_facts['os_family'] == "Alpine"
+
+- name: Install base packages (Debian)
+  ansible.builtin.apt:
+    name: [vim, curl, htop, rsync, qemu-guest-agent]
+    state: present
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install base packages (Alpine)
+  community.general.apk:
+    name: [vim, curl, htop, rsync]
+    state: present
+  when: ansible_facts['os_family'] == "Alpine"
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "lab-{{ inventory_hostname }}"
+
+- name: Set timezone
+  community.general.timezone:
+    name: Africa/Algiers
+  when: ansible_facts['os_family'] == "Debian"
