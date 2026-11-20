@@ -4,6 +4,6 @@ Using two servers: debian and alpine
 
 TODO 
 
-[] users role
-[] ssh hardening
-[] firewall
+- [] users role
+- [] ssh hardening
+- [] firewall
