@@ -1,6 +1,4 @@
-## documentation 
+# Documentation 
 
-for Set up the lab and fixing issues
-
-[setup](setup.md) prepare server and run the playbook 
-[troubleshooting](troubleshooting.md) errors you may hit   
+- [Setup](setup.md) prepare server and run the playbook 
+- [Troubleshooting](troubleshooting.md) errors you may hit   

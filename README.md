@@ -11,5 +11,9 @@
 
 ## TODO
 
-- [ ] Add documentation for what's already done
-- [ ] Add tests
+### Finish v0.1
+- [ ] Finish `docs/troubleshooting.md`
+
+### v0.2
+- [ ] Service roles chosen by inventory group (web server, DNS, VPN)
+- [ ] Support for Enterprise Linux (Rocky)
