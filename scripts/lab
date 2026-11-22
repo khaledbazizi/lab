@@ -1,0 +1,29 @@
+#!/bin/sh
+# usage: lab up | down | status
+## to launch vms for tests 
+URI="qemu:///system"
+VMS="lab-debian lab-alpine"
+
+case "$1" in
+    up)
+        for vm in $VMS; do
+            virsh -c "$URI" start "$vm" 2>/dev/null || echo "$vm: already running or failed"
+        done
+        ;;
+    down)
+        for vm in $VMS; do
+            virsh -c "$URI" shutdown "$vm" 2>/dev/null || echo "$vm: already stopped"
+        done
+        ;;
+    status)
+        virsh -c "$URI" list --all
+        for vm in $VMS; do
+            echo "== $vm"
+            virsh -c "$URI" domifaddr "$vm" 2>/dev/null
+        done
+        ;;
+    *)
+        echo "usage: $0 up | down | status"
+        exit 1
+        ;;
+esac

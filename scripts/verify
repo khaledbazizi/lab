@@ -1,0 +1,39 @@
+#!/bin/sh
+# check if configurations are running correctly
+
+cd "$(dirname "$0")/../ansible" || exit 1
+
+fail=0
+check() {
+    desc=$1; shift
+    if "$@" >/dev/null 2>&1; then
+        echo "PASS  $desc"
+    else
+        echo "FAIL  $desc"
+        fail=1
+    fi
+}
+
+on_all() { ansible lab -b -m shell -a "$1"; }
+
+sshd_has()    { on_all "/usr/sbin/sshd -T | grep -qx '$1'"; }
+fw_input()    { on_all "nft list chain inet filter input | grep -q 'policy drop'"; }
+fw_boot()     { on_all "systemctl is-enabled nftables || rc-update show | grep -q nftables"; }
+no_drift()    { ! ansible-playbook site.yml --check 2>&1 | grep -qE 'changed=[1-9]'; }
+
+check "servers reachable"              ansible lab -m ping
+check "root login disabled"            sshd_has "permitrootlogin no"
+check "password login disabled"        sshd_has "passwordauthentication no"
+check "keyboard-interactive disabled"  sshd_has "kbdinteractiveauthentication no"
+check "X11 forwarding disabled"        sshd_has "x11forwarding no"
+check "max auth tries is 3"            sshd_has "maxauthtries 3"
+check "firewall default deny (input)"  fw_input
+check "firewall enabled at boot"       fw_boot
+check "no configuration drift"         no_drift
+
+if [ "$fail" -eq 0 ]; then
+    echo "All checks passed."
+else
+    echo "Some checks failed."
+fi
+exit "$fail"
