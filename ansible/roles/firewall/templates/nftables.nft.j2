@@ -1,0 +1,27 @@
+flush ruleset
+
+table inet filter {
+  chain input {
+    type filter hook input priority 0; policy drop;
+
+    ct state established,related accept
+    ct state invalid drop
+    iifname "lo" accept
+{% if firewall_allow_icmp %}
+    ip protocol icmp accept
+    ip6 nexthdr icmpv6 accept
+{% endif %}
+    udp dport 68 accept
+{% for port in firewall_allowed_tcp_ports %}
+    tcp dport {{ port }} ct state new accept
+{% endfor %}
+  }
+
+  chain forward {
+    type filter hook forward priority 0; policy drop;
+  }
+
+  chain output {
+    type filter hook output priority 0; policy accept;
+  }
+}

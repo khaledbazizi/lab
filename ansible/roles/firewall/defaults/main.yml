@@ -1,0 +1,5 @@
+---
+# allow tcp.
+firewall_allowed_tcp_ports:
+  - 22
+firewall_allow_icmp: true

@@ -1,0 +1,11 @@
+---
+lab_admin_user: "{{ ansible_user }}"
+
+# SSH key
+lab_admin_public_key_file: "~/.ssh/id_ed25519.pub"
+
+lab_users:
+  - name: "{{ lab_admin_user }}"
+    shell: /bin/bash
+    admin: true
+    ssh_key: "{{ lookup('ansible.builtin.file', lab_admin_public_key_file) }}"

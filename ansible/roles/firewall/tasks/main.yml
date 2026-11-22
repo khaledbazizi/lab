@@ -1,0 +1,32 @@
+---
+- name: Install nftables (Debian)
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install nftables (Alpine)
+  community.general.apk:
+    name: nftables
+    state: present
+  when: ansible_facts['os_family'] == "Alpine"
+
+- name: Set path  
+  ansible.builtin.set_fact:
+    firewall_nft_conf: "{{ '/etc/nftables.nft' if ansible_facts['os_family'] == 'Alpine' else '/etc/nftables.conf' }}"
+
+- name: Deploy firewall rules
+  ansible.builtin.template:
+    src: nftables.nft.j2
+    dest: "{{ firewall_nft_conf }}"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/sbin/nft -c -f %s
+  notify: Load nftables rules
+
+- name: Enable nftables at boot and start it
+  ansible.builtin.service:
+    name: nftables
+    enabled: true
+    state: started
