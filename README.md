@@ -1,16 +1,15 @@
-### Initial setup 
+# Initial setup
 
-#### ansible roles for a secure baseline, using alpine and debian 
+## Ansible roles for a secure baseline, using Alpine and Debian
 
 | Role | What it sets up |
 |---|---|
-| `base` | deal with packages, install needed tools and set hostname and timezone |
-| `users` | set admin user and add ssh key  |
-| `ssh_hardening` | no root,passowrd and limit 3 attempts per connections and disable X11 forwarding |
+| `base` | Deal with packages, install needed tools and set hostname and timezone |
+| `users` | Set admin user and add SSH key |
+| `ssh_hardening` | No root, no password, limit 3 attempts per connection and disable X11 forwarding |
 | `firewall` | nftables for only SSH, ping and DHCP |
 
+## TODO
 
-
-#### TODO 
-- add documentation for what's already done
-- add tests  
+- [ ] Add documentation for what's already done
+- [ ] Add tests

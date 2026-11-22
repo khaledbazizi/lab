@@ -1,22 +1,22 @@
-### Setup 
+# Setup
 
-prepare servers and run the playbook 
+Prepare servers and run the playbook.
 
-#### what you need
+## What you need
 
-#### Controle machine 
-- Ansible wiht community.general and ansible.posix collections
+### Control machine
+- Ansible with `community.general` and `ansible.posix` collections
 - SSH key pair
 
-#### Each Server:
-- admin user with key acess
-- user with root access
-- python3
+### Each server
+- Admin user with key access
+- User with root access
+- `python3`
 
-#### Prepare server
+## Prepare server
 
-- intial config on server
-- edit $USER
+- Initial config on server
+- Edit `$USER`
 
 **Debian**
 ```sh
@@ -35,31 +35,34 @@ adduser $USER wheel
 echo '%wheel ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel
 chmod 440 /etc/sudoers.d/wheel
 ```
-- for sudo package enable `community` repo in `/etc/apk/repositories` and do `apk update` 
+- For the sudo package, enable the `community` repo in `/etc/apk/repositories` and run `apk update`
 
-
-#### Configure the inventory
+## Configure the inventory
 
 ```sh
 cd ansible
 cp inventory.example.ini inventory.ini
 $EDITOR inventory.ini
 ```
-- add your debian or alpine servers list  
+
+- Add your Debian or Alpine servers list:
+
+```ini
 [lab]
 debian ansible_host=
 alpine ansible_host=
+
 [lab:vars]
 ansible_user=$USER
+```
 
-- do a check:
+- Do a check:
+
 ```sh
 ansible lab -m ping
 ```
 
-#### Run it
-
-
+## Run it
 
 ```sh
 ansible-playbook site.yml --check --diff    # dry run
@@ -67,20 +70,19 @@ ansible-playbook site.yml                   # apply
 ansible-playbook site.yml                   # run again, should be changed=0
 ```
 
-
-#### verify script
+## Verify script
 
 ```sh
 ../scripts/verify
 ```
-Tests: 
-- servers reachable
-- root login disabled
-- password login disabled
-- keyboard-interactive login disabled
-- X11 forwarding disabled
-- max 3 auth tries
-- firewall default deny on incoming traffic
-- firewall enabled at boot
-- no configuration drift 
 
+Tests:
+- Servers reachable
+- Root login disabled
+- Password login disabled
+- Keyboard-interactive login disabled
+- X11 forwarding disabled
+- Max 3 auth tries
+- Firewall default deny on incoming traffic
+- Firewall enabled at boot
+- No configuration drift
