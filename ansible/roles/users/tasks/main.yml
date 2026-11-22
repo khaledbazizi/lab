@@ -1,0 +1,25 @@
+---
+- name: Install shadow tools (Alpine)
+  community.general.apk:
+    name: [shadow, bash]
+    state: present
+  when: ansible_facts['os_family'] == "Alpine"
+
+- name: admin group the system
+  ansible.builtin.set_fact:
+    users_admin_group: "{{ 'wheel' if ansible_facts['os_family'] == 'Alpine' else 'sudo' }}"
+
+- name: Create users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    groups: "{{ users_admin_group if item.admin | default(false) else omit }}"
+    append: true
+  loop: "{{ lab_users }}"
+
+- name: Deploy SSH keys
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.ssh_key }}"
+  loop: "{{ lab_users }}"
+  when: item.ssh_key is defined
