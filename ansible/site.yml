@@ -1,5 +1,17 @@
 ---
 - name: Configure lab base
   hosts: lab
+  pre_tasks:
+    - name: Stop early on unsupported systems
+      ansible.builtin.assert:
+        that: ansible_facts['os_family'] in ['Debian', 'Alpine']
+        fail_msg: >-
+          Unsupported OS family '{{ ansible_facts['os_family'] }}'.
+          Supported: Debian (and derivatives), Alpine.
+        success_msg: "Supported OS: {{ ansible_facts['os_family'] }}"
+      tags: always
   roles:
     - base
+    - users
+    - ssh_hardening
+    - firewall

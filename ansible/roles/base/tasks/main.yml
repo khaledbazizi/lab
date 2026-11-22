@@ -1,15 +1,30 @@
-- name: Update apt cache and upgrade (Debian)
+---
+- name: Refresh apt cache (Debian)
   ansible.builtin.apt:
     update_cache: true
-    upgrade: safe
     cache_valid_time: 3600
+  changed_when: false   
   when: ansible_facts['os_family'] == "Debian"
 
-- name: Update apk index and upgrade (Alpine)
+- name: Refresh apk index (Alpine)
   community.general.apk:
     update_cache: true
-    upgrade: true
+  changed_when: false  
   when: ansible_facts['os_family'] == "Alpine"
+
+- name: Upgrade packages (Debian, opt-in)
+  ansible.builtin.apt:
+    upgrade: safe
+  when:
+    - base_upgrade_packages | bool
+    - ansible_facts['os_family'] == "Debian"
+
+- name: Upgrade packages (Alpine, opt-in)
+  community.general.apk:
+    upgrade: true
+  when:
+    - base_upgrade_packages | bool
+    - ansible_facts['os_family'] == "Alpine"
 
 - name: Install base packages (Debian)
   ansible.builtin.apt:
@@ -29,5 +44,5 @@
 
 - name: Set timezone
   community.general.timezone:
-    name: Africa/Algiers
+    name: "{{ base_timezone }}"
   when: ansible_facts['os_family'] == "Debian"
