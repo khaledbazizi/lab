@@ -1,0 +1,8 @@
+---
+nginx_enabled: false
+
+nginx_web_root: /var/www/lab
+
+nginx_sites:
+  - name: default
+    server_name: _

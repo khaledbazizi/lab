@@ -1,0 +1,8 @@
+{% for site in nginx_sites %}
+server {
+    listen 80;
+    server_name {{ site.server_name }};
+    root {{ nginx_web_root }};
+    index index.html;
+}
+{% endfor %}

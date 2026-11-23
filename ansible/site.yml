@@ -15,3 +15,7 @@
     - users
     - ssh_hardening
     - firewall
+- name: Web servers
+  hosts: webservers
+  roles:
+    - nginx

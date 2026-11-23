@@ -1,0 +1,54 @@
+---
+- name: Nginx web server
+  when: nginx_enabled | bool
+  block:
+    - name: Load OS paths
+      ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
+
+    - name: Install nginx
+      ansible.builtin.package:
+        name: nginx
+        state: present
+
+    - name: Create the web root
+      ansible.builtin.file:
+        path: "{{ nginx_web_root }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Deploy the index page
+      ansible.builtin.copy:
+        dest: "{{ nginx_web_root }}/index.html"
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          <h1>lab</h1>
+          <p>nginx is running on {{ inventory_hostname }}</p>
+
+    - name: Remove the default site
+      ansible.builtin.file:
+        path: "{{ nginx_default_site }}"
+        state: absent
+      notify: Reload nginx
+
+    - name: Deploy the site config
+      ansible.builtin.template:
+        src: lab.conf.j2
+        dest: "{{ nginx_conf_dir }}/lab.conf"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: Test the nginx config
+      ansible.builtin.command: nginx -t
+      changed_when: false
+
+    - name: Enable nginx at boot and start it
+      ansible.builtin.service:
+        name: nginx
+        enabled: true
+        state: started

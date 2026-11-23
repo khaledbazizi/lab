@@ -8,11 +8,9 @@
 | `users` | Set admin user and add SSH key |
 | `ssh_hardening` | No root, no password, limit 3 attempts per connection and disable X11 forwarding |
 | `firewall` | nftables for only SSH, ping and DHCP |
+| `nginx` | install and configure nginx and open port 80 |
 
 ## TODO
-
-### Finish v0.1
-- [ ] Finish `docs/troubleshooting.md`
 
 ### v0.2
 - [ ] Service roles chosen by inventory group (web server, DNS, VPN)

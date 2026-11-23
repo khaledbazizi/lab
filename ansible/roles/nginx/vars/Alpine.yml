@@ -1,0 +1,3 @@
+---
+nginx_conf_dir: /etc/nginx/http.d
+nginx_default_site: /etc/nginx/http.d/default.conf

@@ -1,0 +1,7 @@
+---
+nginx_enabled: true
+
+# Replaces the default list, so the SSH port must be repeated here.
+firewall_allowed_tcp_ports:
+  - "{{ lab_ssh_port | default(22) }}"
+  - 80
