@@ -1,6 +1,10 @@
-# Initial setup
+# Infrastructure Lab
 
-## Ansible roles for a secure baseline, using Alpine and Debian
+Automated deployment and configuration 
+
+goal is to build a reusable setup for servers, networking and security
+
+## Ansible roles 
 
 | Role | What it sets up |
 |---|---|
@@ -13,5 +17,26 @@
 ## TODO
 
 ### v0.2
-- [ ] Service roles chosen by inventory group (web server, DNS, VPN)
+- [x] Web server
+- [ ] reverse proxy
+- [ ] VPN wireguard
+- [ ] DNS
 - [ ] Support for Enterprise Linux (Rocky)
+
+
+
+## Requirements
+
+- Ansible
+- SSH access to target servers
+- Supported distros (currently Alpine and Debian)
+
+## Usage
+
+See [Setup Guide](setup.md) for configuration.
+
+Run the playbook:
+
+```sh
+ansible-playbook -i inventory.ini site.yml
+```
