@@ -23,6 +23,7 @@
     group: root
     mode: "0644"
     content: |
+      Port {{ lab_ssh_port | default(22) }}
       PermitRootLogin no
       PasswordAuthentication no
       KbdInteractiveAuthentication no

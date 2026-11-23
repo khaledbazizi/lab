@@ -1,5 +1,8 @@
 ---
 # allow tcp.
 firewall_allowed_tcp_ports:
-  - 22
+  - "{{ lab_ssh_port | default(22) }}"
+# ping
 firewall_allow_icmp: true
+# udp 
+firewall_allowed_udp_ports: []

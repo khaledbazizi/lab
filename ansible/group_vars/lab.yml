@@ -9,3 +9,5 @@ lab_users:
     shell: /bin/bash
     admin: true
     ssh_key: "{{ lookup('ansible.builtin.file', lab_admin_public_key_file) }}"
+
+lab_ssh_port: 22
