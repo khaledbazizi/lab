@@ -19,3 +19,7 @@
   hosts: webservers
   roles:
     - nginx
+- name: VPN
+  hosts: vpn
+  roles:
+    - wireguard

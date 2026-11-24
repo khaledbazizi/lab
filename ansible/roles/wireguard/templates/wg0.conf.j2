@@ -1,0 +1,13 @@
+# Managed by Ansible (lab)
+[Interface]
+Address = {{ wireguard_address }}
+ListenPort = {{ wireguard_port }}
+PrivateKey = {{ wireguard_key_file.content | b64decode | trim }}
+
+{% for peer in wireguard_peers %}
+[Peer]
+# {{ peer.name }}
+PublicKey = {{ peer.public_key }}
+AllowedIPs = {{ peer.address }}
+
+{% endfor %}

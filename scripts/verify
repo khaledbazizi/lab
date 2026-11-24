@@ -22,6 +22,8 @@ fw_boot()     { on_all "systemctl is-enabled nftables || rc-update show | grep -
 no_drift()    { ! ansible-playbook site.yml --check 2>&1 | grep -qE 'changed=[1-9]'; }
 web_running() { ansible webservers -b -m shell -a "systemctl is-active nginx || rc-service nginx status"; }
 web_answers() { ansible webservers -c local -e ansible_become=false -m ansible.builtin.uri -a "url=http://{{ ansible_host }} status_code=200"; }
+vpn_listening() { ansible vpn -b -m shell -a "wg show wg0 listen-port | grep -qx 51820"; }
+vpn_firewall()  { ansible vpn -b -m shell -a "nft list chain inet filter input | grep -q 'udp dport 51820'"; }
 
 check "servers reachable"              ansible lab -m ping
 check "root login disabled"            sshd_has "permitrootlogin no"
@@ -34,6 +36,8 @@ check "firewall enabled at boot"       fw_boot
 check "no configuration drift"         no_drift
 check "nginx running on web servers"     web_running
 check "web servers answer on port 80"    web_answers
+check "WireGuard listening on 51820"       vpn_listening
+check "firewall allows the WireGuard port"  vpn_firewall
 
 if [ "$fail" -eq 0 ]; then
     echo "All checks passed."

@@ -3,16 +3,16 @@
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
-  changed_when: false   
+  changed_when: false
   when: ansible_facts['os_family'] == "Debian"
 
 - name: Refresh apk index (Alpine)
   community.general.apk:
     update_cache: true
-  changed_when: false  
+  changed_when: false
   when: ansible_facts['os_family'] == "Alpine"
-
 - name: Upgrade packages (Debian, opt-in)
+
   ansible.builtin.apt:
     upgrade: safe
   when:

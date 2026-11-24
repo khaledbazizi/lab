@@ -1,4 +1,4 @@
 ---
 - name: Load nftables rules
   ansible.builtin.command: "nft -f {{ firewall_nft_conf }}"
-  changed_when: true   
+  changed_when: true

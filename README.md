@@ -13,6 +13,7 @@ goal is to build a reusable setup for servers, networking and security
 | `ssh_hardening` | No root, no password, limit 3 attempts per connection and disable X11 forwarding |
 | `firewall` | nftables for only SSH, ping and DHCP |
 | `nginx` | install and configure nginx and open port 80 |
+| `wireguard` | vpn service |
 
 ## TODO
 

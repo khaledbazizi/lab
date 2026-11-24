@@ -1,0 +1,6 @@
+---
+wireguard_packages:
+  - wireguard-tools
+  - wireguard-tools-wg-quick
+  - wireguard-tools-openrc
+wireguard_service: wg-quick.wg0

@@ -1,0 +1,12 @@
+---
+wireguard_enabled: true
+wireguard_port: 51820
+
+# port
+firewall_allowed_udp_ports:
+  - "{{ wireguard_port }}"
+
+wireguard_peers:
+  - name: laptop
+    public_key: "63bhINy8EIWMH6c8acp+7h8QOeHI5+jEDX6JdDy5ozE="
+    address: 10.10.10.2/32
