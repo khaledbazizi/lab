@@ -19,6 +19,9 @@ table inet filter {
 {% for port in firewall_allowed_udp_ports %}
     udp dport {{ port }} accept
 {% endfor %}
+{% for port in firewall_vpn_tcp_ports %}
+    iifname "wg0" tcp dport {{ port }} ct state new accept
+{% endfor %}
   }
 
   chain forward {

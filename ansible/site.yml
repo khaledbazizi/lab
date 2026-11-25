@@ -23,3 +23,7 @@
   hosts: vpn
   roles:
     - wireguard
+- name: Database
+  hosts: databases
+  roles:
+    - postgresql

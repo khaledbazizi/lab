@@ -24,6 +24,8 @@ web_running() { ansible webservers -b -m shell -a "systemctl is-active nginx || 
 web_answers() { ansible webservers -c local -e ansible_become=false -m ansible.builtin.uri -a "url=http://{{ ansible_host }} status_code=200"; }
 vpn_listening() { ansible vpn -b -m shell -a "wg show wg0 listen-port | grep -qx 51820"; }
 vpn_firewall()  { ansible vpn -b -m shell -a "nft list chain inet filter input | grep -q 'udp dport 51820'"; }
+db_online()  { ansible databases -b -m shell -a "pg_lsclusters -h | grep -q online"; }
+db_private() { ansible databases -c local -e ansible_become=false -m shell -a "! nc -z -w 3 {{ ansible_host }} 5432"; }
 
 check "servers reachable"              ansible lab -m ping
 check "root login disabled"            sshd_has "permitrootlogin no"
@@ -38,6 +40,8 @@ check "nginx running on web servers"     web_running
 check "web servers answer on port 80"    web_answers
 check "WireGuard listening on 51820"       vpn_listening
 check "firewall allows the WireGuard port"  vpn_firewall
+check "PostgreSQL online"                      db_online
+check "PostgreSQL closed outside the tunnel"   db_private
 
 if [ "$fail" -eq 0 ]; then
     echo "All checks passed."

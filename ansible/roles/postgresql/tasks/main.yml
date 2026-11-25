@@ -1,0 +1,121 @@
+---
+- name: PostgreSQL database
+  when: postgresql_enabled | bool
+  block:
+    - name: Stop early on unsupported systems
+      ansible.builtin.assert:
+        that: ansible_facts['os_family'] == "Debian"
+        fail_msg: "The postgresql role only supports Debian for now."
+
+    - name: Load OS variables
+      ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
+
+    - name: Install PostgreSQL
+      ansible.builtin.package:
+        name: "{{ postgresql_packages }}"
+        state: present
+
+    - name: Find the cluster version
+      ansible.builtin.shell: pg_lsclusters -h | awk 'NR==1 {print $1}'
+      register: postgresql_cluster
+      changed_when: false
+      check_mode: false
+
+    - name: Remember the paths and unit name
+      ansible.builtin.set_fact:
+        postgresql_conf_dir: "/etc/postgresql/{{ postgresql_cluster.stdout | trim }}/main"
+        postgresql_unit: "postgresql@{{ postgresql_cluster.stdout | trim }}-main"
+
+    - name: Deploy the lab settings
+      ansible.builtin.template:
+        src: 90-lab.conf.j2
+        dest: "{{ postgresql_conf_dir }}/conf.d/90-lab.conf"
+        owner: postgres
+        group: postgres
+        mode: "0644"
+      notify: Restart PostgreSQL
+
+    - name: Allow the VPN network to connect
+      ansible.builtin.blockinfile:
+        path: "{{ postgresql_conf_dir }}/pg_hba.conf"
+        marker: "# {mark} ANSIBLE MANAGED (lab)"
+        block: |
+          host {{ postgresql_db }} {{ postgresql_user }} {{ postgresql_allowed_network }} scram-sha-256
+      notify: Restart PostgreSQL
+
+    - name: Create the systemd drop-in folder
+      ansible.builtin.file:
+        path: /etc/systemd/system/postgresql@.service.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      when: postgresql_wait_for_wireguard | bool
+
+    - name: Start PostgreSQL after WireGuard
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/postgresql@.service.d/lab-wireguard.conf
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          [Unit]
+          After=wg-quick@wg0.service
+          Wants=wg-quick@wg0.service
+      when: postgresql_wait_for_wireguard | bool
+      notify:
+        - Reload systemd
+        - Restart PostgreSQL
+
+    - name: Generate the database password (once)
+      ansible.builtin.shell: umask 077 && openssl rand -hex 24 > /root/.postgresql-lab-password
+      args:
+        creates: /root/.postgresql-lab-password
+
+    - name: Read the database password
+      ansible.builtin.slurp:
+        src: /root/.postgresql-lab-password
+      register: postgresql_password_file
+      no_log: true
+
+    - name: Check if the database role exists
+      ansible.builtin.command:
+        argv: [psql, -tAc, "SELECT 1 FROM pg_roles WHERE rolname='{{ postgresql_user }}'"]
+        chdir: /var/lib/postgresql
+      become_user: postgres
+      register: postgresql_role_check
+      changed_when: false
+      check_mode: false
+
+    - name: Create the database role
+      ansible.builtin.command:
+        argv: [psql, -v, ON_ERROR_STOP=1, -f, "-"]
+        stdin: "CREATE ROLE {{ postgresql_user }} LOGIN PASSWORD '{{ postgresql_password_file.content | b64decode | trim }}';"
+        chdir: /var/lib/postgresql
+      become_user: postgres
+      when: postgresql_role_check.stdout | trim != "1"
+      changed_when: true
+      no_log: true
+
+    - name: Check if the database exists
+      ansible.builtin.command:
+        argv: [psql, -tAc, "SELECT 1 FROM pg_database WHERE datname='{{ postgresql_db }}'"]
+        chdir: /var/lib/postgresql
+      become_user: postgres
+      register: postgresql_db_check
+      changed_when: false
+      check_mode: false
+
+    - name: Create the database
+      ansible.builtin.command:
+        argv: [psql, -v, ON_ERROR_STOP=1, -c, "CREATE DATABASE {{ postgresql_db }} OWNER {{ postgresql_user }}"]
+        chdir: /var/lib/postgresql
+      become_user: postgres
+      when: postgresql_db_check.stdout | trim != "1"
+      changed_when: true
+
+    - name: Enable PostgreSQL at boot and start it
+      ansible.builtin.service:
+        name: postgresql
+        enabled: true
+        state: started
