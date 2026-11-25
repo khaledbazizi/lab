@@ -3,4 +3,3 @@ wireguard_enabled: false
 wireguard_port: 51820
 wireguard_address: 10.10.10.1/24
 wireguard_peers: []
-

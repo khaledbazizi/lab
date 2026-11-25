@@ -11,7 +11,7 @@
     state: present
   when: ansible_facts['os_family'] == "Alpine"
 
-- name: Set path  
+- name: Set path
   ansible.builtin.set_fact:
     firewall_nft_conf: "{{ '/etc/nftables.nft' if ansible_facts['os_family'] == 'Alpine' else '/etc/nftables.conf' }}"
 

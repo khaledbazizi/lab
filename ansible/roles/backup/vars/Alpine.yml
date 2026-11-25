@@ -1,4 +1,5 @@
 ---
 backup_packages:
   - restic
+  - openssl
 backup_cron_service: crond

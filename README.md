@@ -14,15 +14,15 @@ goal is to build a reusable setup for servers, networking and security
 | `firewall` | nftables for only SSH, ping and DHCP |
 | `nginx` | install and configure nginx and open port 80 |
 | `wireguard` | vpn service |
+| `postgresql` | manage database |
+| `backup` | restic backup system |
 
 ## TODO
 
 ### v0.2
-- [x] Web server
-- [ ] reverse proxy
-- [ ] VPN wireguard
-- [ ] DNS
-- [ ] Support for Enterprise Linux (Rocky)
+- [ ] off server backups
+- [ ] update docs
+- [ ] Test environment
 
 
 

@@ -4,7 +4,7 @@ firewall_allowed_tcp_ports:
   - "{{ lab_ssh_port | default(22) }}"
 # ping
 firewall_allow_icmp: true
-# udp 
+# udp
 firewall_allowed_udp_ports: []
 # TCP allowed only through WireGuard
 firewall_vpn_tcp_ports: []

@@ -19,7 +19,7 @@
         mode: "0700"
 
     - name: Generate the repository password (once)
-      ansible.builtin.shell: umask 077 && head -c 32 /dev/urandom | base64 > /root/.restic-password
+      ansible.builtin.shell: umask 077 && openssl rand -base64 32 > /root/.restic-password
       args:
         creates: /root/.restic-password
 
