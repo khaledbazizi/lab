@@ -26,6 +26,8 @@ vpn_listening() { ansible vpn -b -m shell -a "wg show wg0 listen-port | grep -qx
 vpn_firewall()  { ansible vpn -b -m shell -a "nft list chain inet filter input | grep -q 'udp dport 51820'"; }
 db_online()  { ansible databases -b -m shell -a "pg_lsclusters -h | grep -q online"; }
 db_private() { ansible databases -c local -e ansible_become=false -m shell -a "! nc -z -w 3 {{ ansible_host }} 5432"; }
+backup_snapshot() { ansible backups -b -m shell -a "RESTIC_REPOSITORY=/var/backups/restic RESTIC_PASSWORD_FILE=/root/.restic-password restic snapshots --json | grep -q '\"id\"'"; }
+backup_restore()  { ansible backups -b -m command -a "/usr/local/sbin/lab-restore-test"; }
 
 check "servers reachable"              ansible lab -m ping
 check "root login disabled"            sshd_has "permitrootlogin no"
@@ -42,6 +44,8 @@ check "WireGuard listening on 51820"       vpn_listening
 check "firewall allows the WireGuard port"  vpn_firewall
 check "PostgreSQL online"                      db_online
 check "PostgreSQL closed outside the tunnel"   db_private
+check "backup has a snapshot"            backup_snapshot
+check "restore test passes"              backup_restore
 
 if [ "$fail" -eq 0 ]; then
     echo "All checks passed."

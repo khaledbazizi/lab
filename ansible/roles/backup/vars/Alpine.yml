@@ -1,0 +1,4 @@
+---
+backup_packages:
+  - restic
+backup_cron_service: crond

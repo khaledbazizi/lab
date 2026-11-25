@@ -1,0 +1,16 @@
+#!/bin/sh
+# Managed by Ansible (lab)
+set -eu
+export RESTIC_REPOSITORY="{{ backup_repo }}"
+export RESTIC_PASSWORD_FILE=/root/.restic-password
+
+dump_dir=/var/backups/lab
+mkdir -p "$dump_dir"
+{% if backup_postgresql_dump | bool %}
+cd /var/lib/postgresql
+runuser -u postgres -- pg_dump {{ backup_postgresql_db }} > "$dump_dir/{{ backup_postgresql_db }}.sql"
+{% endif %}
+
+restic backup {{ backup_paths | join(' ') }} "$dump_dir"
+restic forget --prune --keep-daily {{ backup_keep_daily }} --keep-weekly {{ backup_keep_weekly }}
+touch "$dump_dir/last-run"

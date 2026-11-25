@@ -1,0 +1,17 @@
+#!/bin/sh
+# Managed by Ansible (lab)
+set -eu
+export RESTIC_REPOSITORY="{{ backup_repo }}"
+export RESTIC_PASSWORD_FILE=/root/.restic-password
+
+restic check
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+restic restore latest --target "$tmp"
+
+count=$(find "$tmp" -type f | wc -l)
+[ "$count" -gt 0 ] || { echo "restore test: nothing restored"; exit 1; }
+{% if backup_postgresql_dump | bool %}
+[ -s "$tmp/var/backups/lab/{{ backup_postgresql_db }}.sql" ] || { echo "restore test: database dump missing"; exit 1; }
+{% endif %}
+echo "restore test ok ($count files)"

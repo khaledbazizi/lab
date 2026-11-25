@@ -1,0 +1,67 @@
+---
+- name: Backups with restic
+  when: backup_enabled | bool
+  block:
+    - name: Load OS variables
+      ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
+
+    - name: Install restic and cron
+      ansible.builtin.package:
+        name: "{{ backup_packages }}"
+        state: present
+
+    - name: Create the repository folder
+      ansible.builtin.file:
+        path: "{{ backup_repo }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Generate the repository password (once)
+      ansible.builtin.shell: umask 077 && head -c 32 /dev/urandom | base64 > /root/.restic-password
+      args:
+        creates: /root/.restic-password
+
+    - name: Initialise the repository (once)
+      ansible.builtin.command: restic init
+      environment:
+        RESTIC_REPOSITORY: "{{ backup_repo }}"
+        RESTIC_PASSWORD_FILE: /root/.restic-password
+      args:
+        creates: "{{ backup_repo }}/config"
+
+    - name: Deploy the backup script
+      ansible.builtin.template:
+        src: lab-backup.sh.j2
+        dest: /usr/local/sbin/lab-backup
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Deploy the restore test script
+      ansible.builtin.template:
+        src: lab-restore-test.sh.j2
+        dest: /usr/local/sbin/lab-restore-test
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Schedule the daily backup
+      ansible.builtin.cron:
+        name: lab backup
+        minute: "{{ backup_minute }}"
+        hour: "{{ backup_hour }}"
+        job: /usr/local/sbin/lab-backup
+        user: root
+
+    - name: Enable cron at boot and start it
+      ansible.builtin.service:
+        name: "{{ backup_cron_service }}"
+        enabled: true
+        state: started
+
+    - name: Take the first backup (once)
+      ansible.builtin.command: /usr/local/sbin/lab-backup
+      args:
+        creates: /var/backups/lab/last-run

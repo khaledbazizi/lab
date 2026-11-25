@@ -1,0 +1,7 @@
+---
+backup_enabled: true
+backup_postgresql_dump: true
+backup_paths:
+  - /etc/wireguard
+  - /etc/nginx
+  - /var/www/lab

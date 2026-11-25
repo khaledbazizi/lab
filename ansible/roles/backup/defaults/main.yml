@@ -1,0 +1,12 @@
+---
+backup_enabled: false
+backup_repo: /var/backups/restic
+backup_paths:
+  - /etc
+backup_keep_daily: 7
+backup_keep_weekly: 4
+backup_hour: "2"
+backup_minute: "30"
+# dump before each backup
+backup_postgresql_dump: false
+backup_postgresql_db: lab

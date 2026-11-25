@@ -1,0 +1,5 @@
+---
+backup_packages:
+  - restic
+  - cron
+backup_cron_service: cron

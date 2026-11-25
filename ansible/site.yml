@@ -27,3 +27,7 @@
   hosts: databases
   roles:
     - postgresql
+- name: Backups
+  hosts: backups
+  roles:
+    - backup
